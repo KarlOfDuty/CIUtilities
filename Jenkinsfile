@@ -117,8 +117,10 @@ pipeline
           }
           steps
           {
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo'
-            sh 'cp rhel/karlofduty-repo-*.x86_64.rpm /usr/share/nginx/repo.karlofduty.com/rhel/el8/packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo/'
+            sh 'cp rhel/karlofduty-repo-*.x86_64.rpm /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo/'
+            sh 'rm /usr/share/nginx/repo.karlofduty.com/rhel/el9/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
+            sh 'ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo/$(ls rhel/karlofduty-repo-*.x86_64.rpm) /usr/share/nginx/repo.karlofduty.com/rhel/el9/karlofduty-repo-latest.x86_64.rpm'
             sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el9'
           }
         }
@@ -132,13 +134,9 @@ pipeline
           {
             sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/packages/karlofduty-repo/'
             sh 'cp rhel/karlofduty-repo-*.x86_64.rpm /usr/share/nginx/repo.karlofduty.com/rhel/el8/packages/karlofduty-repo/'
-            sh 'cp rhel/karlofduty-repo-*.x86_64.rpm /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo/'
             sh 'rm /usr/share/nginx/repo.karlofduty.com/rhel/el8/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
-            sh 'rm /usr/share/nginx/repo.karlofduty.com/rhel/el9/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
             sh 'ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el8/packages/karlofduty-repo/$(ls rhel/karlofduty-repo-*.x86_64.rpm) /usr/share/nginx/repo.karlofduty.com/rhel/el8/karlofduty-repo-latest.x86_64.rpm'
-            sh 'ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo/$(ls rhel/karlofduty-repo-*.x86_64.rpm) /usr/share/nginx/repo.karlofduty.com/rhel/el9/karlofduty-repo-latest.x86_64.rpm'
             sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el8'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el9'
           }
         }
         stage('Fedora')
