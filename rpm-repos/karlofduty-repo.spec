@@ -18,7 +18,7 @@ if [[ -d %{_rpmdir}/%{_arch} ]]; then
 fi
 
 %{__install} -d %{buildroot}/etc/yum.repos.d/
-%{__install} %{_builddir}/rpm-repos/karlofduty-%{distro}.repo %{buildroot}/etc/yum.repos.d/karlofduty.repo
+%{__install} %{repo_root}/rpm-repos/karlofduty-%{distro}.repo %{buildroot}/etc/yum.repos.d/karlofduty.repo
 
 %{__install} -d %{buildroot}/etc/pki/rpm-gpg/
 %{__install} %{repo_root}/rpm-repos/RPM-GPG-KEY-karlofduty %{buildroot}/etc/pki/rpm-gpg/

@@ -28,7 +28,7 @@ pipeline
           }
           steps
           {
-            sh 'rpmbuild -bb packaging/karlofduty-repo.spec --define "_topdir $PWD/fedora" --define "distro fedora"'
+            sh 'rpmbuild -bb rpm-repos/karlofduty-repo.spec --define "_topdir $PWD/fedora" --define "distro fedora"'
             sh 'cp fedora/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm fedora/'
             stash includes: 'fedora/karlofduty-repo-*.x86_64.rpm', name: 'fedora-rpm'
           }
