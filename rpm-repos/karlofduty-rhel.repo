@@ -1,6 +1,6 @@
 [karlofduty]
 name=KarlofDuty - RHEL$releasever RPM repository
-baseurl=https://repo.karlofduty.com/rhel/el$basearch/
+baseurl=https://repo.karlofduty.com/rhel/el$releasever/
 enabled=1
 gpgcheck=1
 countme=1
