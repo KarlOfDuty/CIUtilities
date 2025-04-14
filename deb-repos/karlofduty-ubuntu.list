@@ -1,0 +1,2 @@
+deb [arch=amd64] https://repo.karlofduty.com/ubuntu ubuntu main dev
+deb-src https://repo.karlofduty.com/ubuntu ubuntu main dev

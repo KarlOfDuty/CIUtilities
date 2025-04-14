@@ -1,0 +1,9 @@
+# Example file for upstream/metadata.
+# See https://wiki.debian.org/UpstreamMetadata for more info/fields.
+# Below an example based on a github project.
+
+Bug-Database: https://github.com/KarlOfDuty/CIUtilities/issues
+Bug-Submit: https://github.com/KarlOfDuty/CIUtilities/issues/new
+Documentation: https://github.com/KarlOfDuty/CIUtilities
+Repository-Browse: https://github.com/KarlOfDuty/CIUtilities
+Repository: https://github.com/KarlOfDuty/CIUtilities.git

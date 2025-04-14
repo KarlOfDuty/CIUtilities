@@ -3,6 +3,16 @@ pipeline
   agent any
   stages
   {
+    stage("Preparation")
+    {
+      steps
+      {
+        script
+        {
+          common = load("${env.WORKSPACE}/scripts/common.groovy")
+        }
+      }
+    }
     stage('Build / Package')
     {
       parallel
@@ -33,44 +43,46 @@ pipeline
             stash includes: 'fedora/karlofduty-repo-*.x86_64.rpm', name: 'fedora-rpm'
           }
         }
-        //stage('Debian')
-        //{
-        //  agent
-        //  {
-        //    dockerfile { filename 'docker/Debian.Dockerfile' }
-        //  }
-        //  environment
-        //  {
-        //    DEBEMAIL="xkaess22@gmail.com"
-        //    DEBFULLNAME="Karl Essinger"
-        //    PACKAGE_ROOT="${WORKSPACE}/debian"
-        //  }
-        //  steps
-        //  {
-        //    sh './packaging/generate-deb.sh'
-        //    archiveArtifacts(artifacts: 'debian/supportboi-dev_*_amd64.deb, debian/supportboi-dev_*.tar.xz', caseSensitive: true)
-        //    stash includes: 'debian/supportboi-dev_*_amd64.deb, debian/supportboi-dev_*.tar.xz, debian/supportboi-dev_*.dsc', name: 'debian-deb'
-        //  }
-        //}
-        //stage('Ubuntu')
-        //{
-        //  agent
-        //  {
-        //    dockerfile { filename 'docker/Ubuntu.Dockerfile' }
-        //  }
-        //  environment
-        //  {
-        //    DEBEMAIL="xkaess22@gmail.com"
-        //    DEBFULLNAME="Karl Essinger"
-        //    PACKAGE_ROOT="${WORKSPACE}/ubuntu"
-        //  }
-        //  steps
-        //  {
-        //    sh './packaging/generate-deb.sh'
-        //    archiveArtifacts(artifacts: 'ubuntu/supportboi-dev_*_amd64.deb, ubuntu/supportboi-dev_*.orig.tar.gz, ubuntu/supportboi-dev_*.tar.xz', caseSensitive: true)
-        //    stash includes: 'ubuntu/supportboi-dev_*_amd64.deb, ubuntu/supportboi-dev_*.tar.xz, ubuntu/supportboi-dev_*.dsc', name: 'ubuntu-deb'
-        //  }
-        //}
+        stage('Debian')
+        {
+          agent
+          {
+            dockerfile { filename 'docker/Debian.Dockerfile' }
+          }
+          environment
+          {
+            DEBEMAIL="xkaess22@gmail.com"
+            DEBFULLNAME="Karl Essinger"
+            DISTRO="debian"
+            PACKAGE_ROOT="${WORKSPACE}/debian"
+          }
+          steps
+          {
+            sh './deb-repos/generate-deb.sh'
+            archiveArtifacts(artifacts: 'debian/karlofduty-repo_*_amd64.deb, debian/karlofduty-repo_*.tar.xz', caseSensitive: true)
+            stash includes: 'debian/karlofduty-repo_*_amd64.deb, debian/karlofduty-repo_*.tar.xz, debian/karlofduty-repo_*.dsc', name: 'debian-deb'
+          }
+        }
+        stage('Ubuntu')
+        {
+          agent
+          {
+            dockerfile { filename 'docker/Ubuntu.Dockerfile' }
+          }
+          environment
+          {
+            DEBEMAIL="xkaess22@gmail.com"
+            DEBFULLNAME="Karl Essinger"
+            DISTRO="ubuntu"
+            PACKAGE_ROOT="${WORKSPACE}/ubuntu"
+          }
+          steps
+          {
+            sh './deb-repos/generate-deb.sh'
+            archiveArtifacts(artifacts: 'ubuntu/karlofduty-repo_*_amd64.deb, ubuntu/karlofduty-repo_*.tar.xz', caseSensitive: true)
+            stash includes: 'ubuntu/karlofduty-repo_*_amd64.deb, ubuntu/karlofduty-repo_*.tar.xz, ubuntu/karlofduty-repo_*.dsc', name: 'ubuntu-deb'
+          }
+        }
       }
     }
     stage('Sign')
@@ -142,96 +154,44 @@ pipeline
             sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/fedora'
           }
         }
-        //stage('Debian')
-        //{
-        //  when
-        //  {
-        //    expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
-        //  }
-        //  environment
-        //  {
-        //    DISTRO="debian"
-        //    REPO_DIR="/usr/share/nginx/repo.karlofduty.com/${env.DISTRO}"
-        //    POOL_DIR="${env.REPO_DIR}/pool/dev/supportboi"
-        //    DISTS_BIN_DIR="${env.REPO_DIR}/dists/${env.DISTRO}/dev/binary-amd64"
-        //    DISTS_SRC_DIR="${env.REPO_DIR}/dists/${env.DISTRO}/dev/source"
-        //  }
-        //  steps
-        //  {
-        //    unstash name: "${env.DISTRO}-deb"
-//
-        //    // Copy package and sources to pool directory
-        //    sh "mkdir -p ${env.POOL_DIR}"
-        //    sh "cp ${env.DISTRO}/supportboi-dev_*_amd64.deb ${env.POOL_DIR}"
-        //    sh "cp ${env.DISTRO}/supportboi-dev_*.tar.xz ${env.POOL_DIR}"
-        //    sh "cp ${env.DISTRO}/supportboi-dev_*.dsc ${env.POOL_DIR}"
-        //    dir("${env.REPO_DIR}")
-        //    {
-        //      // Generate package lists
-        //      sh "mkdir -p ${env.DISTS_BIN_DIR}"
-        //      sh "dpkg-scanpackages --arch amd64 -m pool/ > ${env.DISTS_BIN_DIR}/Packages"
-        //      sh "cat ${env.DISTS_BIN_DIR}/Packages | gzip -9c > ${env.DISTS_BIN_DIR}/Packages.gz"
-//
-        //      // Generate source lists
-        //      sh "mkdir -p ${env.DISTS_SRC_DIR}"
-        //      sh "dpkg-scansources pool/ > ${env.DISTS_SRC_DIR}/Sources"
-        //      sh "cat ${env.DISTS_SRC_DIR}/Sources | gzip -9c > ${env.DISTS_SRC_DIR}/Sources.gz"
-        //    }
-//
-        //    dir("${env.REPO_DIR}/dists/${env.DISTRO}")
-        //    {
-        //      // Generate release file
-        //      sh "${WORKSPACE}/CIUtilities/scripts/generate-deb-release-file.sh > Release"
-        //    }
-//
-        //    sh "rmdir ${env.REPO_DIR}@tmp"
-        //  }
-        //}
-        //stage('Ubuntu')
-        //{
-        //  when
-        //  {
-        //    expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
-        //  }
-        //  environment
-        //  {
-        //    DISTRO="ubuntu"
-        //    REPO_DIR="/usr/share/nginx/repo.karlofduty.com/${env.DISTRO}"
-        //    POOL_DIR="${env.REPO_DIR}/pool/dev/supportboi"
-        //    DISTS_BIN_DIR="${env.REPO_DIR}/dists/${env.DISTRO}/dev/binary-amd64"
-        //    DISTS_SRC_DIR="${env.REPO_DIR}/dists/${env.DISTRO}/dev/source"
-        //  }
-        //  steps
-        //  {
-        //    unstash name: "${env.DISTRO}-deb"
-//
-        //    // Copy package and sources to pool directory
-        //    sh "mkdir -p ${env.POOL_DIR}"
-        //    sh "cp ${env.DISTRO}/supportboi-dev_*_amd64.deb ${env.POOL_DIR}"
-        //    sh "cp ${env.DISTRO}/supportboi-dev_*.tar.xz ${env.POOL_DIR}"
-        //    sh "cp ${env.DISTRO}/supportboi-dev_*.dsc ${env.POOL_DIR}"
-        //    dir("${env.REPO_DIR}")
-        //    {
-        //      // Generate package lists
-        //      sh "mkdir -p ${env.DISTS_BIN_DIR}"
-        //      sh "dpkg-scanpackages --arch amd64 -m pool/ > ${env.DISTS_BIN_DIR}/Packages"
-        //      sh "cat ${env.DISTS_BIN_DIR}/Packages | gzip -9c > ${env.DISTS_BIN_DIR}/Packages.gz"
-//
-        //      // Generate source lists
-        //      sh "mkdir -p ${env.DISTS_SRC_DIR}"
-        //      sh "dpkg-scansources pool/ > ${env.DISTS_SRC_DIR}/Sources"
-        //      sh "cat ${env.DISTS_SRC_DIR}/Sources | gzip -9c > ${env.DISTS_SRC_DIR}/Sources.gz"
-        //    }
-//
-        //    dir("${env.REPO_DIR}/dists/${env.DISTRO}")
-        //    {
-        //      // Generate release file
-        //      sh "${WORKSPACE}/CIUtilities/scripts/generate-deb-release-file.sh > Release"
-        //    }
-//
-        //    sh "rmdir ${env.REPO_DIR}@tmp"
-        //  }
-        //}
+        stage('Debian')
+        {
+          when
+          {
+            expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
+          }
+          environment
+          {
+            DISTRO="debian"
+            PACKAGE_NAME="karlofduty-repo"
+          }
+          steps
+          {
+            unstash name: "${env.DISTRO}-deb"
+            common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
+            common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
+            sh "rmdir /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}@tmp"
+          }
+        }
+        stage('Ubuntu')
+        {
+          when
+          {
+            expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
+          }
+          environment
+          {
+            DISTRO="ubuntu"
+            PACKAGE_NAME="karlofduty-repo"
+          }
+          steps
+          {
+            unstash name: "${env.DISTRO}-deb"
+            common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
+            common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
+            sh "rmdir /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}@tmp"
+          }
+        }
       }
     }
   }

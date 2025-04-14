@@ -2,7 +2,7 @@
 %global repo_root %{_topdir}/..
 
 Name:       karlofduty-repo
-Summary:    A support ticket Discord bot
+Summary:    Installs the KarlofDuty.com package repository
 Version:    1.0.0~%(date "+%%Y%%m%%d%%H%%M%%S")git%(git rev-parse --short HEAD)
 Release:    1%{?dist}
 License:    GPLv3

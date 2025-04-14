@@ -21,9 +21,9 @@ Origin: karlofduty.com
 Label: KarlofDuty
 Suite: debian
 Codename: debian
-Version: 1.0
+Version: 1.0.1
 Architectures: amd64
-Components: dev
+Components: main dev
 Description: Repository for KarlofDuty made packages
 Date: $(date -Ru)
 EOF
