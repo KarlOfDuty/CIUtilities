@@ -31,6 +31,11 @@ def generate_debian_release_file(String ci_root, String distro)
   dir("${repo_dir}/dists/${distro}")
   {
     sh "${ci_root}/scripts/generate-deb-release-file.sh > Release"
+    withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')]) {
+      sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
+      sh "cat Release | gpg --default-key 'Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' -abs > Release.gpg"
+      sh "cat Release | gpg --default-key 'Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' -abs --clearsign > InRelease"
+    }
   }
 }
 
