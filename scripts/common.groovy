@@ -33,3 +33,5 @@ def generate_debian_release_file(String ci_root, String distro)
     sh "${ci_root}/scripts/generate-deb-release-file.sh > Release"
   }
 }
+
+return this
