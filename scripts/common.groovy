@@ -1,9 +1,9 @@
-def publish_deb_package(String distro, String package_name, String package_dir, String build_root)
+def publish_deb_package(String distro, String package_name, String package_dir, String build_root, String component)
 {
   def repo_dir="/usr/share/nginx/repo.karlofduty.com/${distro}"
-  def pool_dir="${repo_dir}/pool/dev/${package_dir}"
-  def dists_bin_dir="${repo_dir}/dists/${distro}/dev/binary-amd64"
-  def dists_src_dir="${repo_dir}/dists/${distro}/dev/source"
+  def pool_dir="${repo_dir}/pool/${component}/${package_dir}"
+  def dists_bin_dir="${repo_dir}/dists/${distro}/${component}/binary-amd64"
+  def dists_src_dir="${repo_dir}/dists/${distro}/${component}/source"
 
   // Copy package and sources to pool directory
   sh "mkdir -p ${pool_dir}"

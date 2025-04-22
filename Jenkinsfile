@@ -164,13 +164,14 @@ pipeline
           {
             DISTRO="debian"
             PACKAGE_NAME="karlofduty-repo"
+            COMPONENT="main"
           }
           steps
           {
             unstash name: "${env.DISTRO}-deb"
             script
             {
-              common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
+              common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}", ${env.COMPONENT})
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
           }
@@ -185,13 +186,14 @@ pipeline
           {
             DISTRO="ubuntu"
             PACKAGE_NAME="karlofduty-repo"
+            COMPONENT="main"
           }
           steps
           {
             unstash name: "${env.DISTRO}-deb"
             script
             {
-              common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
+              common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}", ${env.COMPONENT})
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
           }
