@@ -22,7 +22,7 @@ def publish_deb_package(String distro, String package_name, String package_dir, 
     sh "dpkg-scansources pool/ > ${dists_src_dir}/Sources"
     sh "cat ${dists_src_dir}/Sources | gzip -9c > ${dists_src_dir}/Sources.gz"
   }
-  sh "if [ -d ${repo_dir}@tmp ]; then; rmdir ${repo_dir}@tmp; fi"
+  sh "if [ -d ${repo_dir}@tmp ]; then rmdir ${repo_dir}@tmp; fi"
 }
 
 def generate_debian_release_file(String ci_root, String distro)
@@ -38,7 +38,7 @@ def generate_debian_release_file(String ci_root, String distro)
       sh "cat Release | gpg --default-key 'Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' -abs --clearsign > InRelease"
     }
   }
-  sh "if [ -d ${repo_dir}/dists/${distro}@tmp ]; then; rmdir ${repo_dir}/dists/${distro}@tmp; fi"
+  sh "if [ -d ${repo_dir}/dists/${distro}@tmp ] then; rmdir ${repo_dir}/dists/${distro}@tmp; fi"
 }
 
 return this
