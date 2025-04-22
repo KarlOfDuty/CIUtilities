@@ -175,7 +175,7 @@ pipeline
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
             sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb || echo 'Link to latest package didn\\'t exist'"
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/$(cd ${env.DISTRO} && ls karlofduty-repo_*.amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb"
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*.amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb"
           }
         }
         stage('Ubuntu')
@@ -199,7 +199,7 @@ pipeline
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
             sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb || echo 'Link to latest package didn\\'t exist'"
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/$(cd ${env.DISTRO} && ls karlofduty-repo_*.amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb"
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*.amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb"
           }
         }
       }
