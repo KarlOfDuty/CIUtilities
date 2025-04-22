@@ -21,6 +21,8 @@ def publish_deb_package(String distro, String package_name, String package_dir, 
     sh "mkdir -p ${dists_src_dir}"
     sh "dpkg-scansources pool/ > ${dists_src_dir}/Sources"
     sh "cat ${dists_src_dir}/Sources | gzip -9c > ${dists_src_dir}/Sources.gz"
+
+    sh "rmdir /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}@tmp"
   }
 }
 
