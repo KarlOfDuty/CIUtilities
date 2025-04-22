@@ -1,2 +1,2 @@
 karlofduty.list /etc/apt/sources.list.d/
-deb-repos/karlofduty-repo.gpg /usr/share/keyrings/
+karlofduty-repo.gpg /usr/share/keyrings/
