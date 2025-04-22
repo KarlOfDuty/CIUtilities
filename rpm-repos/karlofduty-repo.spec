@@ -21,7 +21,7 @@ fi
 %{__install} %{repo_root}/rpm-repos/karlofduty-%{distro}.repo %{buildroot}/etc/yum.repos.d/karlofduty.repo
 
 %{__install} -d %{buildroot}/etc/pki/rpm-gpg/
-%{__install} %{repo_root}/repo-key.gpg %{buildroot}/etc/pki/rpm-gpg/RPM-GPG-KEY-karlofduty
+%{__install} %{repo_root}/rpm-repos/RPM-GPG-KEY-karlofduty %{buildroot}/etc/pki/rpm-gpg/
 
 %files
 %config %attr(0644,root,root) /etc/yum.repos.d/karlofduty.repo
