@@ -168,8 +168,11 @@ pipeline
           steps
           {
             unstash name: "${env.DISTRO}-deb"
-            common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
-            common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
+            script
+            {
+              common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
+              common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
+            }
             sh "rmdir /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}@tmp"
           }
         }
@@ -187,8 +190,11 @@ pipeline
           steps
           {
             unstash name: "${env.DISTRO}-deb"
-            common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
-            common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
+            script
+            {
+              common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}")
+              common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
+            }
             sh "rmdir /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}@tmp"
           }
         }
