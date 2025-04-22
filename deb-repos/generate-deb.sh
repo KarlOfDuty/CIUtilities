@@ -2,7 +2,7 @@
 
 # Usage: Run this script from the root of the repository.
 
-PACKAGE_VERSION="1.0.0"
+PACKAGE_VERSION="1.0.1"
 PACKAGE_NAME="karlofduty-repo"
 
 export REPO_ROOT="$PWD"
