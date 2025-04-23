@@ -87,7 +87,7 @@ pipeline
     }
     stage('Sign')
     {
-      parallel
+      stages
       {
         stage('RHEL')
         {
