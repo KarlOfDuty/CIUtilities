@@ -127,7 +127,7 @@ pipeline
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
               sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 5F70A1590922C51E'
-              sh "/usr/bin/site_perl/debsigs -k 5F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
+              sh "debsign -k 5F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
               sh "gpg --verify ${env.DISTRO}/karlofduty-repo_*.dsc"
               sh "/usr/bin/site_perl/debsigs --sign=origin -k 5F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
             }
@@ -145,7 +145,8 @@ pipeline
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
               sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 5F70A1590922C51E'
-              sh "/usr/bin/site_perl/debsigs -k 5F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
+              sh "debsign -k 5F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
+              sh "gpg --verify ${env.DISTRO}/karlofduty-repo_*.dsc"
               sh "/usr/bin/site_perl/debsigs --sign=origin -k 5F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
             }
           }
