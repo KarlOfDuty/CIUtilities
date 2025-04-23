@@ -88,14 +88,14 @@ pipeline
             DISTRO="ubuntu"
             PACKAGE_ROOT="${WORKSPACE}/ubuntu"
           }
-          script
-          {
-            env.UBUNTU_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
-            env.UBUNTU_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
-          }
           steps
           {
             sh './deb-repos/generate-deb.sh'
+            script
+            {
+              env.UBUNTU_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
+              env.UBUNTU_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
+            }
             stash includes: "${env.DISTRO}/karlofduty-repo_*_amd64.deb, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.DISTRO}/karlofduty-repo_*.dsc", name: "${env.DISTRO}-deb"
           }
         }
