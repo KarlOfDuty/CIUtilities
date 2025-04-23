@@ -174,8 +174,8 @@ pipeline
               common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}", env.COMPONENT)
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
-            sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb || echo \"Link to latest package didn't exist\""
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*.amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb"
+            sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo_latest_amd64.deb || echo \"Link to latest package didn't exist\""
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb"
           }
         }
         stage('Ubuntu')
@@ -198,8 +198,8 @@ pipeline
               common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}", env.COMPONENT)
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
-            sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb || echo \"Link to latest package didn't exist\""
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*.amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo-latest.amd64.deb"
+            sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/karlofduty-repo_latest_amd64.deb || echo \"Link to latest package didn't exist\""
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb"
           }
         }
       }
