@@ -41,7 +41,7 @@ def generate_debian_release_file(String ci_root, String distro)
     {
       sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
       sh "cat Release | gpg -u 2FEAAE97C813C486 -abs > Release.gpg"
-      sh "gpg --verify Release.gpg"
+      sh "gpg --verify Release.gpg Release"
       sh "cat Release | gpg -u 2FEAAE97C813C486 --clearsign > InRelease"
       sh "gpg --verify InRelease"
     }
