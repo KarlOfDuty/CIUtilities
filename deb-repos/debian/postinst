@@ -1,6 +1,4 @@
 #!/bin/sh
-# postinst script for supportboi.
-#
 # See: dh_installdeb(1).
 
 set -e

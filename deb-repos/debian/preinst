@@ -1,6 +1,4 @@
 #!/bin/sh
-# preinst script for supportboi.
-#
 # See: dh_installdeb(1).
 
 set -e
@@ -15,7 +13,17 @@ set -e
 
 
 case "$1" in
-  install|upgrade)
+  install)
+    if [ -f /etc/apt/sources.list.d/karlofduty.list ]; then
+      rm -f /etc/apt/sources.list.d/karlofduty.list
+    fi
+
+    if [ -f /usr/share/keyrings/karlofduty-repo.gpg ]; then
+      rm -f /usr/share/keyrings/karlofduty-repo.gpg
+    fi
+  ;;
+
+  upgrade)
   ;;
 
   abort-upgrade)
