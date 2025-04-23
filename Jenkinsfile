@@ -127,7 +127,7 @@ pipeline
             {
               sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
               sh "/usr/bin/site_perl/debsigs -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
-              sh "ls -lah ${env.DISTRO}"
+              sh "ls -lah"
               sh "ls -lah ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
               sh "/usr/bin/site_perl/debsigs --sign=origin -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
             }
