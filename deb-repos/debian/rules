@@ -25,6 +25,10 @@ override_dh_install:
 	cp "deb-repos/karlofduty-repo.asc" "debian/tmp/"
 	dh_install
 
+override_dh_installdeb:
+	dh_installdeb
+	find debian/ -name conffiles -delete
+
 # dh_make generated override targets.
 # This is an example for Cmake (see <https://bugs.debian.org/641051>).
 #override_dh_auto_configure:
