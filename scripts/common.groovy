@@ -14,7 +14,7 @@ def publish_deb_package(String distro, String package_name, String package_dir, 
   {
     // Generate package lists
     sh "mkdir -p ${dists_bin_dir}"
-    sh "dpkg-scanpackages --arch amd64 -m pool/ > ${dists_bin_dir}/Packages"
+    sh "dpkg-scanpackages --arch amd64 -m pool/${component} > ${dists_bin_dir}/Packages"
     sh "cat ${dists_bin_dir}/Packages | gzip -9c > ${dists_bin_dir}/Packages.gz"
 
     // Generate source lists
