@@ -1,2 +1,3 @@
 /etc/apt/sources.list.d/karlofduty.list
 /usr/share/keyrings/karlofduty-repo.gpg
+/etc/apt/trusted.gpg.d/karlofduty-repo.asc

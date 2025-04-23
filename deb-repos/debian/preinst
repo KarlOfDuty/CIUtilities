@@ -18,6 +18,10 @@ case "$1" in
       rm -f /etc/apt/sources.list.d/karlofduty.list
     fi
 
+    if [ -f /etc/apt/trusted.gpg.d/karlofduty-repo.asc ]; then
+      rm -f /etc/apt/trusted.gpg.d/karlofduty-repo.asc
+    fi
+
     if [ -f /usr/share/keyrings/karlofduty-repo.gpg ]; then
       rm -f /usr/share/keyrings/karlofduty-repo.gpg
     fi

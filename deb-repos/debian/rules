@@ -22,6 +22,7 @@ override_dh_install:
 	mkdir -p "debian/tmp"
 	cp "deb-repos/karlofduty-${DISTRO}.list" "debian/tmp/karlofduty.list"
 	cp "deb-repos/karlofduty-repo.gpg" "debian/tmp/"
+	cp "deb-repos/karlofduty-repo.asc" "debian/tmp/"
 	dh_install
 
 # dh_make generated override targets.
