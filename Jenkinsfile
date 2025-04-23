@@ -27,6 +27,10 @@ pipeline
           {
             sh 'rpmbuild -bb rpm-repos/karlofduty-repo.spec --define "_topdir $PWD/rhel" --define "distro rhel"'
             sh 'cp rhel/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm rhel/'
+            script
+            {
+              env.RHEL_RPM_NAME = sh(script: "cd rhel && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+            }
             stash includes: 'rhel/karlofduty-repo-*.x86_64.rpm', name: 'rhel-rpm'
           }
         }
@@ -40,6 +44,10 @@ pipeline
           {
             sh 'rpmbuild -bb rpm-repos/karlofduty-repo.spec --define "_topdir $PWD/fedora" --define "distro fedora"'
             sh 'cp fedora/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm fedora/'
+            script
+            {
+              env.FEDORA_RPM_NAME = sh(script: "cd fedora && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+            }
             stash includes: 'fedora/karlofduty-repo-*.x86_64.rpm', name: 'fedora-rpm'
           }
         }
@@ -59,8 +67,12 @@ pipeline
           steps
           {
             sh './deb-repos/generate-deb.sh'
-            archiveArtifacts(artifacts: 'debian/karlofduty-repo_*_amd64.deb, debian/karlofduty-repo_*.tar.xz', caseSensitive: true)
-            stash includes: 'debian/karlofduty-repo_*_amd64.deb, debian/karlofduty-repo_*.tar.xz, debian/karlofduty-repo_*.dsc', name: 'debian-deb'
+            script
+            {
+              env.DEBIAN_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
+              env.DEBIAN_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
+            }
+            stash includes: "${env.DISTRO}/karlofduty-repo_*_amd64.deb, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.DISTRO}/karlofduty-repo_*.dsc", name: "${env.DISTRO}-deb"
           }
         }
         stage('Ubuntu')
@@ -76,11 +88,15 @@ pipeline
             DISTRO="ubuntu"
             PACKAGE_ROOT="${WORKSPACE}/ubuntu"
           }
+          script
+          {
+            env.UBUNTU_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
+            env.UBUNTU_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
+          }
           steps
           {
             sh './deb-repos/generate-deb.sh'
-            archiveArtifacts(artifacts: 'ubuntu/karlofduty-repo_*_amd64.deb, ubuntu/karlofduty-repo_*.tar.xz', caseSensitive: true)
-            stash includes: 'ubuntu/karlofduty-repo_*_amd64.deb, ubuntu/karlofduty-repo_*.tar.xz, ubuntu/karlofduty-repo_*.dsc', name: 'ubuntu-deb'
+            stash includes: "${env.DISTRO}/karlofduty-repo_*_amd64.deb, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.DISTRO}/karlofduty-repo_*.dsc", name: "${env.DISTRO}-deb"
           }
         }
       }
@@ -91,10 +107,6 @@ pipeline
       {
         stage('RHEL')
         {
-          environment
-          {
-            GPG_TTY=""
-          }
           steps
           {
             unstash name: 'rhel-rpm'
@@ -108,10 +120,6 @@ pipeline
         }
         stage('Fedora')
         {
-          environment
-          {
-            GPG_TTY=""
-          }
           steps
           {
             unstash name: 'fedora-rpm'
@@ -125,40 +133,34 @@ pipeline
         }
         stage('Debian')
         {
-          environment
-          {
-            DISTRO="debian"
-            GPG_TTY=""
-          }
+          environment { DISTRO="debian" }
           steps
           {
             unstash name: "${env.DISTRO}-deb"
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
               sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
-              sh "cat ${env.DISTRO}/karlofduty-repo_*.dsc | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/karlofduty-repo_*.dsc"
-              sh "gpg --verify ${env.DISTRO}/karlofduty-repo_*.dsc"
-              sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
+              sh "cat ${env.DISTRO}/${env.DEBIAN_DSC_NAME} | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
+              sh "gpg --verify ${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
+              sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
             }
+            archiveArtifacts(artifacts: 'debian/karlofduty-repo_*_amd64.deb, debian/karlofduty-repo_*.tar.xz', caseSensitive: true)
           }
         }
         stage('Ubuntu')
         {
-          environment
-          {
-            DISTRO="ubuntu"
-            GPG_TTY=""
-          }
+          environment { DISTRO="ubuntu" }
           steps
           {
             unstash name: "${env.DISTRO}-deb"
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
               sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
-              sh "cat ${env.DISTRO}/karlofduty-repo_*.dsc | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/karlofduty-repo_*.dsc"
-              sh "gpg --verify ${env.DISTRO}/karlofduty-repo_*.dsc"
-              sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
+              sh "cat ${env.DISTRO}/${env.UBUNTU_DSC_NAME} | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
+              sh "gpg --verify ${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
+              sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/${env.UBUNTU_DEB_NAME}"
             }
+            archiveArtifacts(artifacts: 'ubuntu/karlofduty-repo_*_amd64.deb, ubuntu/karlofduty-repo_*.tar.xz', caseSensitive: true)
           }
         }
       }
@@ -211,7 +213,6 @@ pipeline
             DISTRO="debian"
             PACKAGE_NAME="karlofduty-repo"
             COMPONENT="main"
-            GPG_TTY=""
           }
           steps
           {
@@ -221,7 +222,7 @@ pipeline
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
             sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb || echo \"Link to latest package didn't exist\""
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb"
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/${env.DEBIAN_DEB_NAME} /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb"
           }
         }
         stage('Ubuntu')
@@ -235,7 +236,6 @@ pipeline
             DISTRO="ubuntu"
             PACKAGE_NAME="karlofduty-repo"
             COMPONENT="main"
-            GPG_TTY=""
           }
           steps
           {
@@ -245,7 +245,7 @@ pipeline
               common.generate_debian_release_file("${WORKSPACE}", env.DISTRO)
             }
             sh "rm /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb || echo \"Link to latest package didn't exist\""
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/\$(cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb) /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb"
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/pool/${env.COMPONENT}/karlofduty-repo/${env.UBUNTU_DEB_NAME} /usr/share/nginx/repo.karlofduty.com/${env.DISTRO}/dists/${env.DISTRO}/karlofduty-repo_latest_amd64.deb"
           }
         }
       }
