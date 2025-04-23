@@ -91,6 +91,10 @@ pipeline
       {
         stage('RHEL')
         {
+          environment
+          {
+            GPG_TTY="/dev/null"
+          }
           steps
           {
             unstash name: 'rhel-rpm'
@@ -104,6 +108,10 @@ pipeline
         }
         stage('Fedora')
         {
+          environment
+          {
+            GPG_TTY="/dev/null"
+          }
           steps
           {
             unstash name: 'fedora-rpm'
@@ -120,6 +128,7 @@ pipeline
           environment
           {
             DISTRO="debian"
+            GPG_TTY="/dev/null"
           }
           steps
           {
@@ -138,6 +147,7 @@ pipeline
           environment
           {
             DISTRO="ubuntu"
+            GPG_TTY="/dev/null"
           }
           steps
           {
@@ -201,6 +211,7 @@ pipeline
             DISTRO="debian"
             PACKAGE_NAME="karlofduty-repo"
             COMPONENT="main"
+            GPG_TTY="/dev/null"
           }
           steps
           {
@@ -224,6 +235,7 @@ pipeline
             DISTRO="ubuntu"
             PACKAGE_NAME="karlofduty-repo"
             COMPONENT="main"
+            GPG_TTY="/dev/null"
           }
           steps
           {
