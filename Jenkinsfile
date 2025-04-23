@@ -117,15 +117,9 @@ pipeline
         }
         stage('Debian')
         {
-          when
-          {
-            expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
-          }
           environment
           {
             DISTRO="debian"
-            PACKAGE_NAME="karlofduty-repo"
-            COMPONENT="main"
           }
           steps
           {
@@ -139,15 +133,9 @@ pipeline
         }
         stage('Ubuntu')
         {
-          when
-          {
-            expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
-          }
           environment
           {
             DISTRO="ubuntu"
-            PACKAGE_NAME="karlofduty-repo"
-            COMPONENT="main"
           }
           steps
           {
