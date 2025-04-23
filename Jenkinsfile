@@ -115,6 +115,51 @@ pipeline
             archiveArtifacts(artifacts: 'fedora/karlofduty-repo-*.x86_64.rpm', caseSensitive: true)
           }
         }
+        stage('Debian')
+        {
+          when
+          {
+            expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
+          }
+          environment
+          {
+            DISTRO="debian"
+            PACKAGE_NAME="karlofduty-repo"
+            COMPONENT="main"
+          }
+          steps
+          {
+            withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
+            {
+              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
+              sh "debsigs -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
+              sh "debsigs --sign=origin -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.deb"
+            }
+          }
+        }
+        stage('Ubuntu')
+        {
+          when
+          {
+            expression { return env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'beta'; }
+          }
+          environment
+          {
+            DISTRO="ubuntu"
+            PACKAGE_NAME="karlofduty-repo"
+            COMPONENT="main"
+          }
+          steps
+          {
+            unstash name: "${env.DISTRO}-deb"
+            withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
+            {
+              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
+              sh "debsigs -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
+              sh "debsigs --sign=origin -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.deb"
+            }
+          }
+        }
       }
     }
     stage('Deploy')
@@ -168,7 +213,6 @@ pipeline
           }
           steps
           {
-            unstash name: "${env.DISTRO}-deb"
             script
             {
               common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}", env.COMPONENT)
@@ -192,7 +236,6 @@ pipeline
           }
           steps
           {
-            unstash name: "${env.DISTRO}-deb"
             script
             {
               common.publish_deb_package(env.DISTRO, env.PACKAGE_NAME, env.PACKAGE_NAME, "${WORKSPACE}/${env.DISTRO}", env.COMPONENT)
