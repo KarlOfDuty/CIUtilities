@@ -126,8 +126,8 @@ pipeline
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
               sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
-              sh "debsigs -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
-              sh "debsigs --sign=origin -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.deb"
+              sh "/usr/bin/site_perl/debsigs -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
+              sh "/usr/bin/site_perl/debsigs --sign=origin -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.deb"
             }
           }
         }
@@ -143,8 +143,8 @@ pipeline
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
               sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
-              sh "debsigs -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
-              sh "debsigs --sign=origin -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.deb"
+              sh "/usr/bin/site_perl/debsigs -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.dsc"
+              sh "/usr/bin/site_perl/debsigs --sign=origin -k 0D27E4CD885E9DD79C252E825F70A1590922C51E ${env.DISTRO}/karlofduty-repo_*.deb"
             }
           }
         }
