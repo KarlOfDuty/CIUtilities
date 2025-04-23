@@ -99,7 +99,7 @@ pipeline
           {
             unstash name: 'rhel-rpm'
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')]) {
-              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 2FEAAE97C813C486'
+              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
               sh 'rpmsign --define "_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>" --addsign rhel/karlofduty-repo-*.x86_64.rpm'
               sh 'rpm -vv --checksig rhel/karlofduty-repo-*.x86_64.rpm'
             }
@@ -116,7 +116,7 @@ pipeline
           {
             unstash name: 'fedora-rpm'
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')]) {
-              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 2FEAAE97C813C486'
+              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
               sh 'rpmsign --define "_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>" --addsign fedora/karlofduty-repo-*.x86_64.rpm'
               sh 'rpm -vv --checksig fedora/karlofduty-repo-*.x86_64.rpm'
             }
@@ -135,7 +135,7 @@ pipeline
             unstash name: "${env.DISTRO}-deb"
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
-              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 2FEAAE97C813C486'
+              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
               sh "cat ${env.DISTRO}/karlofduty-repo_*.dsc | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/karlofduty-repo_*.dsc"
               sh "gpg --verify ${env.DISTRO}/karlofduty-repo_*.dsc"
               sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
@@ -154,7 +154,7 @@ pipeline
             unstash name: "${env.DISTRO}-deb"
             withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
             {
-              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 2FEAAE97C813C486'
+              sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
               sh "cat ${env.DISTRO}/karlofduty-repo_*.dsc | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/karlofduty-repo_*.dsc"
               sh "gpg --verify ${env.DISTRO}/karlofduty-repo_*.dsc"
               sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/karlofduty-repo_*_amd64.deb"
