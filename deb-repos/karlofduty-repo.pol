@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE Policy SYSTEM "https://www.debian.org/debsig/1.0/policy.dtd">
+<Policy xmlns="https://www.debian.org/debsig/1.0/">
+
+  <Origin Name="KarlofDuty" id="2FEAAE97C813C486" Description="Karl Essinger"/>
+
+  <Selection>
+    <Required Type="origin" File="karlofduty-repo.gpg" id="2FEAAE97C813C486"/>
+  </Selection>
+
+  <Verification MinOptional="0">
+    <Required Type="origin" File="karlofduty-repo.gpg" id="2FEAAE97C813C486"/>
+  </Verification>
+
+</Policy>

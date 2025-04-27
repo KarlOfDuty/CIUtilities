@@ -1,3 +1,5 @@
 karlofduty.list /etc/apt/sources.list.d/
 karlofduty-repo.gpg /usr/share/keyrings/
+karlofduty-repo.gpg /usr/share/debsig/keyrings/2FEAAE97C813C486/
+karlofduty-repo.pol /etc/debsig/policies/2FEAAE97C813C486/
 karlofduty-repo.asc /etc/apt/trusted.gpg.d/
