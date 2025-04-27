@@ -3,7 +3,7 @@
 
 Name:       karlofduty-repo
 Summary:    Installs the KarlofDuty.com package repository
-Version:    1.0.0~%(date "+%%Y%%m%%d%%H%%M%%S")git%(git rev-parse --short HEAD)
+Version:    1.0.1
 Release:    1%{?dist}
 License:    GPLv3
 URL:        https://github.com/KarlOfDuty/CIUtilities
