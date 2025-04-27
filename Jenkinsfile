@@ -143,7 +143,7 @@ pipeline
               sh "cat ${env.DISTRO}/${env.DEBIAN_DSC_NAME} | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
               sh "gpg --verify ${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
               sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
-              sh "debsigs-verify ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
+              sh "debsig-verify ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
             }
             archiveArtifacts(artifacts: 'debian/karlofduty-repo_*_amd64.deb, debian/karlofduty-repo_*.tar.xz', caseSensitive: true)
           }
@@ -160,7 +160,7 @@ pipeline
               sh "cat ${env.DISTRO}/${env.UBUNTU_DSC_NAME} | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
               sh "gpg --verify ${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
               sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/${env.UBUNTU_DEB_NAME}"
-              sh "debsigs-verify ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
+              sh "debsig-verify ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
             }
             archiveArtifacts(artifacts: 'ubuntu/karlofduty-repo_*_amd64.deb, ubuntu/karlofduty-repo_*.tar.xz', caseSensitive: true)
           }
