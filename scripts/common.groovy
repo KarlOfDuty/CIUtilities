@@ -1,3 +1,19 @@
+def prepare_gpg_key()
+{
+  withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
+  {
+    sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
+  }
+}
+
+def sign_deb_package(String deb_path, String dsc_path)
+{
+  sh "cat ${dsc_path} | gpg -u 2FEAAE97C813C486 --clearsign > ${dsc_path}"
+  sh "gpg --verify ${dsc_path}"
+  sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${deb_path}"
+  sh "debsig-verify ${deb_path}"
+}
+
 def publish_deb_package(String distro, String package_name, String package_dir, String build_root, String component)
 {
   def repo_dir="/usr/share/nginx/repo.karlofduty.com/${distro}"
@@ -37,14 +53,10 @@ def generate_debian_release_file(String ci_root, String distro)
   dir("${repo_dir}/dists/${distro}")
   {
     sh "${ci_root}/scripts/generate-deb-release-file.sh > Release"
-    withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
-    {
-      sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
-      sh "cat Release | gpg -u 2FEAAE97C813C486 -abs > Release.gpg"
-      sh "gpg --verify Release.gpg Release"
-      sh "cat Release | gpg -u 2FEAAE97C813C486 --clearsign > InRelease"
-      sh "gpg --verify InRelease"
-    }
+    sh "cat Release | gpg -u 2FEAAE97C813C486 -abs > Release.gpg"
+    sh "gpg --verify Release.gpg Release"
+    sh "cat Release | gpg -u 2FEAAE97C813C486 --clearsign > InRelease"
+    sh "gpg --verify InRelease"
   }
   sh """
     if [ -d "${repo_dir}/dists/${distro}@tmp" ];

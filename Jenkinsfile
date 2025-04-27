@@ -10,6 +10,7 @@ pipeline
         script
         {
           common = load("${env.WORKSPACE}/scripts/common.groovy")
+          common.prepare_gpg_key()
         }
       }
     }
@@ -19,36 +20,34 @@ pipeline
       {
         stage('RHEL')
         {
-          agent
-          {
-            dockerfile { filename 'docker/RHEL8.Dockerfile' }
-          }
+          agent { dockerfile { filename 'docker/RHEL8.Dockerfile' } }
+          environment { DISTRO="rhel" }
           steps
           {
-            sh 'rpmbuild -bb rpm-repos/karlofduty-repo.spec --define "_topdir $PWD/rhel" --define "distro rhel"'
-            sh 'cp rhel/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm rhel/'
+            sh "rpmbuild -bb rpm-repos/karlofduty-repo.spec --define \"_topdir $PWD/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
+            sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
             script
             {
-              env.RHEL_RPM_NAME = sh(script: "cd rhel && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+              env.RHEL_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+              env.RHEL_RPM_PATH = "${env.DISTRO}/${env.RHEL_RPM_NAME}"
             }
-            stash includes: 'rhel/karlofduty-repo-*.x86_64.rpm', name: 'rhel-rpm'
+            stash includes: "${env.DISTRO}/karlofduty-repo-*.x86_64.rpm", name: "${env.DISTRO}-rpm"
           }
         }
         stage('Fedora')
         {
-          agent
-          {
-            dockerfile { filename 'docker/Fedora.Dockerfile' }
-          }
+          agent { dockerfile { filename 'docker/Fedora.Dockerfile' } }
+          environment { DISTRO="fedora" }
           steps
           {
-            sh 'rpmbuild -bb rpm-repos/karlofduty-repo.spec --define "_topdir $PWD/fedora" --define "distro fedora"'
-            sh 'cp fedora/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm fedora/'
+            sh "rpmbuild -bb rpm-repos/karlofduty-repo.spec --define \"_topdir $PWD/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
+            sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
             script
             {
-              env.FEDORA_RPM_NAME = sh(script: "cd fedora && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+              env.FEDORA_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+              env.FEDORA_RPM_PATH = "${env.DISTRO}/${env.FEDORA_RPM_NAME}"
             }
-            stash includes: 'fedora/karlofduty-repo-*.x86_64.rpm', name: 'fedora-rpm'
+            stash includes: "${env.DISTRO}/karlofduty-repo-*.x86_64.rpm", name: "${env.DISTRO}-rpm"
           }
         }
         stage('Debian')
@@ -70,9 +69,11 @@ pipeline
             script
             {
               env.DEBIAN_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
+              env.DEBIAN_DEB_PATH = "${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
               env.DEBIAN_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
+              env.DEBIAN_DSC_PATH = "${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
             }
-            stash includes: "${env.DISTRO}/karlofduty-repo_*_amd64.deb, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.DISTRO}/karlofduty-repo_*.dsc", name: "${env.DISTRO}-deb"
+            stash includes: "${env.DEBIAN_DEB_PATH}, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.DEBIAN_DSC_PATH}", name: "${env.DISTRO}-deb"
           }
         }
         stage('Ubuntu')
@@ -94,20 +95,12 @@ pipeline
             script
             {
               env.UBUNTU_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
+              env.UBUNTU_DEB_PATH = "${env.DISTRO}/${env.UBUNTU_DEB_NAME}"
               env.UBUNTU_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
+              env.UBUNTU_DSC_PATH = "${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
             }
-            stash includes: "${env.DISTRO}/karlofduty-repo_*_amd64.deb, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.DISTRO}/karlofduty-repo_*.dsc", name: "${env.DISTRO}-deb"
+            stash includes: "${env.UBUNTU_DEB_PATH}, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.UBUNTU_DSC_PATH}", name: "${env.DISTRO}-deb"
           }
-        }
-      }
-    }
-    stage('Unlock GPG Key')
-    {
-      steps
-      {
-        withCredentials([string(credentialsId: 'JENKINS_GPG_KEY_PASSWORD', variable: 'JENKINS_GPG_KEY_PASSWORD')])
-        {
-          sh '/usr/lib/gnupg/gpg-preset-passphrase --passphrase "$JENKINS_GPG_KEY_PASSWORD" --preset 0D27E4CD885E9DD79C252E825F70A1590922C51E'
         }
       }
     }
@@ -120,9 +113,9 @@ pipeline
           steps
           {
             unstash name: 'rhel-rpm'
-            sh 'rpmsign --define "_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>" --addsign rhel/karlofduty-repo-*.x86_64.rpm'
-            sh 'rpm -vv --checksig rhel/karlofduty-repo-*.x86_64.rpm'
-            archiveArtifacts(artifacts: 'rhel/karlofduty-repo-*.x86_64.rpm', caseSensitive: true)
+            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.RHEL_RPM_PATH}"
+            sh "rpm -vv --checksig ${env.RHEL_RPM_PATH}"
+            archiveArtifacts(artifacts: "${env.RHEL_RPM_PATH}", caseSensitive: true)
           }
         }
         stage('Fedora')
@@ -130,35 +123,27 @@ pipeline
           steps
           {
             unstash name: 'fedora-rpm'
-            sh 'rpmsign --define "_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>" --addsign fedora/karlofduty-repo-*.x86_64.rpm'
-            sh 'rpm -vv --checksig fedora/karlofduty-repo-*.x86_64.rpm'
-            archiveArtifacts(artifacts: 'fedora/karlofduty-repo-*.x86_64.rpm', caseSensitive: true)
+            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.FEDORA_RPM_PATH}"
+            sh "rpm -vv --checksig ${env.FEDORA_RPM_PATH}"
+            archiveArtifacts(artifacts: "${env.FEDORA_RPM_PATH}", caseSensitive: true)
           }
         }
         stage('Debian')
         {
-          environment { DISTRO="debian" }
           steps
           {
-            unstash name: "${env.DISTRO}-deb"
-            sh "cat ${env.DISTRO}/${env.DEBIAN_DSC_NAME} | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
-            sh "gpg --verify ${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
-            sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
-            sh "debsig-verify ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
-            archiveArtifacts(artifacts: 'debian/karlofduty-repo_*_amd64.deb, debian/karlofduty-repo_*.tar.xz', caseSensitive: true)
+            unstash name: "debian-deb"
+            common.sign_deb_package(env.DEBIAN_DEB_PATH, env.DEBIAN_DSC_PATH)
+            archiveArtifacts(artifacts: "${env.DEBIAN_DEB_PATH}, debian/karlofduty-repo_*.tar.xz", caseSensitive: true)
           }
         }
         stage('Ubuntu')
         {
-          environment { DISTRO="ubuntu" }
           steps
           {
-            unstash name: "${env.DISTRO}-deb"
-            sh "cat ${env.DISTRO}/${env.UBUNTU_DSC_NAME} | gpg -u 2FEAAE97C813C486 --clearsign > ${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
-            sh "gpg --verify ${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
-            sh "/usr/bin/site_perl/debsigs --sign=origin -k 2FEAAE97C813C486 ${env.DISTRO}/${env.UBUNTU_DEB_NAME}"
-            sh "debsig-verify ${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
-            archiveArtifacts(artifacts: 'ubuntu/karlofduty-repo_*_amd64.deb, ubuntu/karlofduty-repo_*.tar.xz', caseSensitive: true)
+            unstash name: "ubuntu-deb"
+            common.sign_deb_package(env.UBUNTU_DEB_PATH, env.UBUNTU_DSC_PATH)
+            archiveArtifacts(artifacts: "${env.UBUNTU_DEB_PATH}, ubuntu/karlofduty-repo_*.tar.xz", caseSensitive: true)
           }
         }
       }
