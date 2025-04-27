@@ -23,6 +23,7 @@ override_dh_install:
 	cp "deb-repos/karlofduty-${DISTRO}.list" "debian/tmp/karlofduty.list"
 	cp "deb-repos/karlofduty-repo.gpg" "debian/tmp/"
 	cp "deb-repos/karlofduty-repo.asc" "debian/tmp/"
+	cp "deb-repos/karlofduty-repo.pol" "debian/tmp/"
 	dh_install
 
 override_dh_installdeb:
