@@ -133,7 +133,7 @@ pipeline
           steps
           {
             unstash name: "debian-deb"
-            common.sign_deb_package(env.DEBIAN_DEB_PATH, env.DEBIAN_DSC_PATH)
+            script { common.sign_deb_package(env.DEBIAN_DEB_PATH, env.DEBIAN_DSC_PATH) }
             archiveArtifacts(artifacts: "${env.DEBIAN_DEB_PATH}, debian/karlofduty-repo_*.tar.xz", caseSensitive: true)
           }
         }
@@ -142,7 +142,7 @@ pipeline
           steps
           {
             unstash name: "ubuntu-deb"
-            common.sign_deb_package(env.UBUNTU_DEB_PATH, env.UBUNTU_DSC_PATH)
+            script { common.sign_deb_package(env.UBUNTU_DEB_PATH, env.UBUNTU_DSC_PATH) }
             archiveArtifacts(artifacts: "${env.UBUNTU_DEB_PATH}, ubuntu/karlofduty-repo_*.tar.xz", caseSensitive: true)
           }
         }
