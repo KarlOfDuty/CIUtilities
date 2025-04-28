@@ -24,7 +24,7 @@ pipeline
           environment { DISTRO="rhel" }
           steps
           {
-            sh "rpmbuild -bb rpm-repos/karlofduty-repo.spec --define \"_topdir $PWD/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
+            sh "rpmbuild -bb rpm-repos/karlofduty-repo.spec --define \"_topdir ${WORKSPACE}/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
             sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
             script
             {
@@ -40,7 +40,7 @@ pipeline
           environment { DISTRO="fedora" }
           steps
           {
-            sh "rpmbuild -bb rpm-repos/karlofduty-repo.spec --define \"_topdir $PWD/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
+            sh "rpmbuild -bb rpm-repos/karlofduty-repo.spec --define \"_topdir ${WORKSPACE}/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
             sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
             script
             {
