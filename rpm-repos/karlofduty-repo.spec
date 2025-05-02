@@ -14,7 +14,7 @@ Source:     rpm-source.tar.gz
 Adds repo files and gpg keys for the packages on repo.karlofduty.com
 
 %prep
-%setup -q
+%setup -qc
 
 %install
 if [[ -d %{_rpmdir}/%{_arch} ]]; then
