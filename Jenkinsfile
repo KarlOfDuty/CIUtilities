@@ -45,7 +45,6 @@ pipeline
             sh "mkdir -p ${env.DISTRO}/SOURCES"
             sh "git archive --format=tar.gz HEAD > '${env.DISTRO}/SOURCES/rpm-source.tar.gz'"
             sh "rpmbuild -ba rpm-repos/karlofduty-repo.spec --define \"_topdir ${WORKSPACE}/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
-            sh "dnf install tree -y"
             sh "tree ${env.DISTRO}/SRPMS"
             sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
             script
