@@ -1,7 +1,15 @@
 [karlofduty]
 name=KarlofDuty - RHEL$releasever RPM repository
-baseurl=https://repo.karlofduty.com/rhel/el$releasever/
+baseurl=https://repo.karlofduty.com/rhel/el$releasever/x86_64/
 enabled=1
+gpgcheck=1
+countme=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-karlofduty
+
+[karlofduty-src]
+name=KarlofDuty - RHEL$releasever SRPM repository
+baseurl=https://repo.karlofduty.com/rhel/el$releasever/source/
+enabled=0
 gpgcheck=1
 countme=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-karlofduty

@@ -32,8 +32,10 @@ pipeline
             {
               env.RHEL_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
               env.RHEL_RPM_PATH = "${env.DISTRO}/${env.RHEL_RPM_NAME}"
+              env.RHEL_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.src.rpm", returnStdout: true).trim()
+              env.RHEL_SRPM_NAME = "${env.DISTRO}/${env.RHEL_RPM_NAME}"
             }
-            stash includes: "${env.DISTRO}/karlofduty-repo-*.x86_64.rpm", name: "${env.DISTRO}-rpm"
+            stash includes: "${env.RHEL_RPM_PATH}, ${env.RHEL_SRPM_NAME}", name: "${env.DISTRO}-rpm"
           }
         }
         stage('Fedora')
@@ -47,12 +49,15 @@ pipeline
             sh "rpmbuild -ba rpm-repos/karlofduty-repo.spec --define \"_topdir ${WORKSPACE}/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
             sh "tree ${env.DISTRO}/SRPMS"
             sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
+            sh "cp ${env.DISTRO}/SRPMS/karlofduty-repo-*.src.rpm ${env.DISTRO}/"
             script
             {
               env.FEDORA_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
               env.FEDORA_RPM_PATH = "${env.DISTRO}/${env.FEDORA_RPM_NAME}"
+              env.FEDORA_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.src.rpm", returnStdout: true).trim()
+              env.FEDORA_SRPM_PATH = "${env.DISTRO}/${env.FEDORA_SRPM_NAME}"
             }
-            stash includes: "${env.DISTRO}/karlofduty-repo-*.x86_64.rpm", name: "${env.DISTRO}-rpm"
+            stash includes: "${env.FEDORA_RPM_PATH}, ${env.FEDORA_SRPM_PATH}", name: "${env.DISTRO}-rpm"
           }
         }
         stage('Debian')
@@ -119,8 +124,10 @@ pipeline
           {
             unstash name: 'rhel-rpm'
             sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.RHEL_RPM_PATH}"
+            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.RHEL_SRPM_PATH}"
             sh "rpm -vv --checksig ${env.RHEL_RPM_PATH}"
-            archiveArtifacts(artifacts: "${env.RHEL_RPM_PATH}", caseSensitive: true)
+            sh "rpm -vv --checksig ${env.RHEL_SRPM_PATH}"
+            archiveArtifacts(artifacts: "${env.RHEL_RPM_PATH}, ${env.RHEL_SRPM_PATH}", caseSensitive: true)
           }
         }
         stage('Fedora')
@@ -129,8 +136,10 @@ pipeline
           {
             unstash name: 'fedora-rpm'
             sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.FEDORA_RPM_PATH}"
+            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.FEDORA_SRPM_PATH}"
             sh "rpm -vv --checksig ${env.FEDORA_RPM_PATH}"
-            archiveArtifacts(artifacts: "${env.FEDORA_RPM_PATH}", caseSensitive: true)
+            sh "rpm -vv --checksig ${env.FEDORA_SRPM_PATH}"
+            archiveArtifacts(artifacts: "${env.FEDORA_RPM_PATH}, ${env.FEDORA_SRPM_PATH}", caseSensitive: true)
           }
         }
         stage('Debian')
@@ -165,14 +174,22 @@ pipeline
           }
           steps
           {
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo/'
-            sh 'cp rhel/karlofduty-repo-*.x86_64.rpm /usr/share/nginx/repo.karlofduty.com/rhel/el8/packages/karlofduty-repo/'
-            sh 'cp rhel/karlofduty-repo-*.x86_64.rpm /usr/share/nginx/repo.karlofduty.com/rhel/el9/packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64/packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/source/packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/source/packages/karlofduty-repo/'
+            sh "cp ${env.RHEL_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/"
+            sh "cp ${env.RHEL_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64/Packages/karlofduty-repo/"
+            sh "cp ${env.RHEL_SRPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el8/source/Packages/karlofduty-repo/"
+            sh "cp ${env.RHEL_SRPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el9/source/Packages/karlofduty-repo/"
+
             sh 'rm /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
-            sh 'ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el8/packages/karlofduty-repo/$(cd rhel && ls karlofduty-repo-*.x86_64.rpm) /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el8'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el9'
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/${env.RHEL_RPM_NAME} /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm"
+
+            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64'
+            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64'
+            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el8/source'
+            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el9/source'
           }
         }
         stage('Fedora')
@@ -183,11 +200,16 @@ pipeline
           }
           steps
           {
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/fedora/packages/karlofduty-repo/'
-            sh 'cp fedora/karlofduty-repo-*.x86_64.rpm /usr/share/nginx/repo.karlofduty.com/fedora/packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/fedora/x86_64/Packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/fedora/source/Packages/karlofduty-repo/'
+            sh "cp ${env.FEDORA_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/fedora/x86_64/Packages/karlofduty-repo/"
+            sh "cp ${env.FEDORA_SRPM_PATH} /usr/share/nginx/repo.karlofduty.com/fedora/source/Packages/karlofduty-repo/"
+
             sh 'rm /usr/share/nginx/repo.karlofduty.com/fedora/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
-            sh 'ln -s /usr/share/nginx/repo.karlofduty.com/fedora/packages/karlofduty-repo/$(cd fedora && ls karlofduty-repo-*.x86_64.rpm) /usr/share/nginx/repo.karlofduty.com/fedora/karlofduty-repo-latest.x86_64.rpm'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/fedora'
+            sh "ln -s /usr/share/nginx/repo.karlofduty.com/fedora/x86_64/Packages/karlofduty-repo/${env.FEDORA_RPM_NAME} /usr/share/nginx/repo.karlofduty.com/fedora/karlofduty-repo-latest.x86_64.rpm"
+
+            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/fedora/x86_64'
+            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/fedora/source'
           }
         }
         stage('Debian')

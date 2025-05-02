@@ -2,7 +2,7 @@
 
 Name:       karlofduty-repo
 Summary:    Installs the KarlofDuty.com package repository
-Version:    1.0.1
+Version:    1.0.2
 Release:    1%{?dist}
 BuildArch:  x86_64
 License:    GPLv3

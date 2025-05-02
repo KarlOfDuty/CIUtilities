@@ -1,7 +1,15 @@
 [karlofduty]
 name=KarlofDuty - Fedora RPM repository
-baseurl=https://repo.karlofduty.com/fedora/
+baseurl=https://repo.karlofduty.com/fedora/x86_64
 enabled=1
+gpgcheck=1
+countme=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-karlofduty
+
+[karlofduty-src]
+name=KarlofDuty - Fedora SRPM repository
+baseurl=https://repo.karlofduty.com/fedora/source
+enabled=0
 gpgcheck=1
 countme=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-karlofduty
