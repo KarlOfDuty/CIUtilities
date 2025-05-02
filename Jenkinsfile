@@ -174,10 +174,10 @@ pipeline
           }
           steps
           {
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64/packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/source/packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/source/packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64/Packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/source/Packages/karlofduty-repo/'
+            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/source/Packages/karlofduty-repo/'
             sh "cp ${env.RHEL_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/"
             sh "cp ${env.RHEL_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64/Packages/karlofduty-repo/"
             sh "cp ${env.RHEL_SRPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el8/source/Packages/karlofduty-repo/"
