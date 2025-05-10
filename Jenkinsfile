@@ -30,7 +30,7 @@ pipeline
           {
             script
             {
-              common.build_rpm_package(env.DISTRO, env.PACKAGE_NAME)
+              common.build_rpm_package(env.DISTRO, "rpm-repos/karlofduty-repo.spec", env.PACKAGE_NAME)
               env.RHEL_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.x86_64.rpm", returnStdout: true).trim()
               env.RHEL_RPM_PATH = "${env.DISTRO}/${env.RHEL_RPM_NAME}"
               env.RHEL_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.src.rpm", returnStdout: true).trim()
@@ -51,7 +51,7 @@ pipeline
           {
             script
             {
-              common.build_rpm_package(env.DISTRO, env.PACKAGE_NAME)
+              common.build_rpm_package(env.DISTRO, "rpm-repos/karlofduty-repo.spec", env.PACKAGE_NAME)
               env.FEDORA_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.x86_64.rpm", returnStdout: true).trim()
               env.FEDORA_RPM_PATH = "${env.DISTRO}/${env.FEDORA_RPM_NAME}"
               env.FEDORA_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.src.rpm", returnStdout: true).trim()
