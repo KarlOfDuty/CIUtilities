@@ -21,19 +21,15 @@ pipeline
         stage('RHEL')
         {
           agent { dockerfile { filename 'docker/RHEL8.Dockerfile' } }
-          environment { DISTRO="rhel" }
+          environment { DISTRO="rhel" PACKAGE_NAME="karlofduty-repo" }
           steps
           {
-            sh "mkdir -p ${env.DISTRO}/SOURCES"
-            sh "git archive --format=tar.gz HEAD > '${env.DISTRO}/SOURCES/rpm-source.tar.gz'"
-            sh "rpmbuild -ba rpm-repos/karlofduty-repo.spec --define \"_topdir ${WORKSPACE}/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
-            sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
-            sh "cp ${env.DISTRO}/SRPMS/karlofduty-repo-*.src.rpm ${env.DISTRO}/"
             script
             {
-              env.RHEL_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+              common.build_rpm_package(env.DISTRO, env.PACKAGE_NAME)
+              env.RHEL_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.x86_64.rpm", returnStdout: true).trim()
               env.RHEL_RPM_PATH = "${env.DISTRO}/${env.RHEL_RPM_NAME}"
-              env.RHEL_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.src.rpm", returnStdout: true).trim()
+              env.RHEL_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.src.rpm", returnStdout: true).trim()
               env.RHEL_SRPM_PATH = "${env.DISTRO}/${env.RHEL_RPM_NAME}"
             }
             stash includes: "${env.RHEL_RPM_PATH}, ${env.RHEL_SRPM_NAME}", name: "${env.DISTRO}-rpm"
@@ -41,20 +37,16 @@ pipeline
         }
         stage('Fedora')
         {
-          agent { dockerfile { filename 'docker/Fedora.Dockerfile' } }
-          environment { DISTRO="fedora" }
+          agent { dockerfile { filename 'docker/Fedora42.Dockerfile' } }
+          environment { DISTRO="fedora" PACKAGE_NAME="karlofduty-repo" }
           steps
           {
-            sh "mkdir -p ${env.DISTRO}/SOURCES"
-            sh "git archive --format=tar.gz HEAD > '${env.DISTRO}/SOURCES/rpm-source.tar.gz'"
-            sh "rpmbuild -ba rpm-repos/karlofduty-repo.spec --define \"_topdir ${WORKSPACE}/${env.DISTRO}\" --define 'distro ${env.DISTRO}'"
-            sh "cp ${env.DISTRO}/RPMS/x86_64/karlofduty-repo-*.x86_64.rpm ${env.DISTRO}/"
-            sh "cp ${env.DISTRO}/SRPMS/karlofduty-repo-*.src.rpm ${env.DISTRO}/"
             script
             {
-              env.FEDORA_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.x86_64.rpm", returnStdout: true).trim()
+              common.build_rpm_package(${env.DISTRO}, env.PACKAGE_NAME)
+              env.FEDORA_RPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.x86_64.rpm", returnStdout: true).trim()
               env.FEDORA_RPM_PATH = "${env.DISTRO}/${env.FEDORA_RPM_NAME}"
-              env.FEDORA_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo-*.src.rpm", returnStdout: true).trim()
+              env.FEDORA_SRPM_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}-*.src.rpm", returnStdout: true).trim()
               env.FEDORA_SRPM_PATH = "${env.DISTRO}/${env.FEDORA_SRPM_NAME}"
             }
             stash includes: "${env.FEDORA_RPM_PATH}, ${env.FEDORA_SRPM_PATH}", name: "${env.DISTRO}-rpm"
@@ -64,7 +56,7 @@ pipeline
         {
           agent
           {
-            dockerfile { filename 'docker/Debian.Dockerfile' }
+            dockerfile { filename 'docker/Debian12.Dockerfile' }
           }
           environment
           {
@@ -72,25 +64,28 @@ pipeline
             DEBFULLNAME="Karl Essinger"
             DISTRO="debian"
             PACKAGE_ROOT="${WORKSPACE}/debian"
+            PACKAGE_NAME="karlofduty-repo"
           }
           steps
           {
             sh './deb-repos/generate-deb.sh'
             script
             {
-              env.DEBIAN_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
+              env.DEBIAN_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}_*_amd64.deb", returnStdout: true).trim()
               env.DEBIAN_DEB_PATH = "${env.DISTRO}/${env.DEBIAN_DEB_NAME}"
-              env.DEBIAN_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
+              env.DEBIAN_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}_*.dsc", returnStdout: true).trim()
               env.DEBIAN_DSC_PATH = "${env.DISTRO}/${env.DEBIAN_DSC_NAME}"
+              env.DEBIAN_SRC_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}_*.tar.xz", returnStdout: true).trim()
+              env.DEBIAN_SRC_PATH = "${env.DISTRO}/${env.DEBIAN_SRC_NAME}"
             }
-            stash includes: "${env.DEBIAN_DEB_PATH}, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.DEBIAN_DSC_PATH}", name: "${env.DISTRO}-deb"
+            stash includes: "${env.DEBIAN_DEB_PATH}, ${env.DEBIAN_SRC_PATH}, ${env.DEBIAN_DSC_PATH}", name: "${env.DISTRO}-deb"
           }
         }
         stage('Ubuntu')
         {
           agent
           {
-            dockerfile { filename 'docker/Ubuntu.Dockerfile' }
+            dockerfile { filename 'docker/Ubuntu24.04.Dockerfile' }
           }
           environment
           {
@@ -98,18 +93,21 @@ pipeline
             DEBFULLNAME="Karl Essinger"
             DISTRO="ubuntu"
             PACKAGE_ROOT="${WORKSPACE}/ubuntu"
+            PACKAGE_NAME="karlofduty-repo"
           }
           steps
           {
             sh './deb-repos/generate-deb.sh'
             script
             {
-              env.UBUNTU_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*_amd64.deb", returnStdout: true).trim()
+              env.UBUNTU_DEB_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}_*_amd64.deb", returnStdout: true).trim()
               env.UBUNTU_DEB_PATH = "${env.DISTRO}/${env.UBUNTU_DEB_NAME}"
-              env.UBUNTU_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls karlofduty-repo_*.dsc", returnStdout: true).trim()
+              env.UBUNTU_DSC_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}_*.dsc", returnStdout: true).trim()
               env.UBUNTU_DSC_PATH = "${env.DISTRO}/${env.UBUNTU_DSC_NAME}"
+              env.UBUNTU_SRC_NAME = sh(script: "cd ${env.DISTRO} && ls ${env.PACKAGE_NAME}_*.tar.xz", returnStdout: true).trim()
+              env.UBUNTU_SRC_PATH = "${env.DISTRO}/${env.UBUNTU_SRC_NAME}"
             }
-            stash includes: "${env.UBUNTU_DEB_PATH}, ${env.DISTRO}/karlofduty-repo_*.tar.xz, ${env.UBUNTU_DSC_PATH}", name: "${env.DISTRO}-deb"
+            stash includes: "${env.UBUNTU_DEB_PATH}, ${env.UBUNTU_SRC_PATH}, ${env.UBUNTU_DSC_PATH}", name: "${env.DISTRO}-deb"
           }
         }
       }
@@ -123,10 +121,11 @@ pipeline
           steps
           {
             unstash name: 'rhel-rpm'
-            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.RHEL_RPM_PATH}"
-            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.RHEL_SRPM_PATH}"
-            sh "rpm -vv --checksig ${env.RHEL_RPM_PATH}"
-            sh "rpm -vv --checksig ${env.RHEL_SRPM_PATH}"
+            script
+            {
+              common.sign_rpm_package(env.RHEL_RPM_PATH)
+              common.sign_rpm_package(env.RHEL_SRPM_PATH)
+            }
             archiveArtifacts(artifacts: "${env.RHEL_RPM_PATH}, ${env.RHEL_SRPM_PATH}", caseSensitive: true)
           }
         }
@@ -135,10 +134,11 @@ pipeline
           steps
           {
             unstash name: 'fedora-rpm'
-            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.FEDORA_RPM_PATH}"
-            sh "rpmsign --define '_gpg_name Karl Essinger (Jenkins Signing) <xkaess22@gmail.com>' --addsign ${env.FEDORA_SRPM_PATH}"
-            sh "rpm -vv --checksig ${env.FEDORA_RPM_PATH}"
-            sh "rpm -vv --checksig ${env.FEDORA_SRPM_PATH}"
+            script
+            {
+              common.sign_rpm_package(env.FEDORA_RPM_PATH)
+              common.sign_rpm_package(env.FEDORA_SRPM_PATH)
+            }
             archiveArtifacts(artifacts: "${env.FEDORA_RPM_PATH}, ${env.FEDORA_SRPM_PATH}", caseSensitive: true)
           }
         }
@@ -174,22 +174,13 @@ pipeline
           }
           steps
           {
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64/Packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el8/source/Packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/rhel/el9/source/Packages/karlofduty-repo/'
-            sh "cp ${env.RHEL_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/"
-            sh "cp ${env.RHEL_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64/Packages/karlofduty-repo/"
-            sh "cp ${env.RHEL_SRPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el8/source/Packages/karlofduty-repo/"
-            sh "cp ${env.RHEL_SRPM_PATH} /usr/share/nginx/repo.karlofduty.com/rhel/el9/source/Packages/karlofduty-repo/"
-
+            script
+            {
+              publish_rpm_package("rhel/el8", env.RHEL_RPM_PATH, env.RHEL_SRPM_PATH, "karlofduty-repo")
+              publish_rpm_package("rhel/el9", env.RHEL_RPM_PATH, env.RHEL_SRPM_PATH, "karlofduty-repo")
+            }
             sh 'rm /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/${env.RHEL_RPM_NAME} /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm"
-
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el9/x86_64'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el8/source'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/rhel/el9/source'
+            sh 'ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/${env.RHEL_RPM_NAME} /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm'
           }
         }
         stage('Fedora')
@@ -200,16 +191,12 @@ pipeline
           }
           steps
           {
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/fedora/x86_64/Packages/karlofduty-repo/'
-            sh 'mkdir -p /usr/share/nginx/repo.karlofduty.com/fedora/source/Packages/karlofduty-repo/'
-            sh "cp ${env.FEDORA_RPM_PATH} /usr/share/nginx/repo.karlofduty.com/fedora/x86_64/Packages/karlofduty-repo/"
-            sh "cp ${env.FEDORA_SRPM_PATH} /usr/share/nginx/repo.karlofduty.com/fedora/source/Packages/karlofduty-repo/"
-
+            script
+            {
+              publish_rpm_package("fedora", env.FEDORA_RPM_PATH, env.FEDORA_SRPM_PATH, "karlofduty-repo")
+            }
             sh 'rm /usr/share/nginx/repo.karlofduty.com/fedora/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
-            sh "ln -s /usr/share/nginx/repo.karlofduty.com/fedora/x86_64/Packages/karlofduty-repo/${env.FEDORA_RPM_NAME} /usr/share/nginx/repo.karlofduty.com/fedora/karlofduty-repo-latest.x86_64.rpm"
-
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/fedora/x86_64'
-            sh 'createrepo_c --update /usr/share/nginx/repo.karlofduty.com/fedora/source'
+            sh 'ln -s /usr/share/nginx/repo.karlofduty.com/fedora/x86_64/Packages/karlofduty-repo/${env.FEDORA_RPM_NAME} /usr/share/nginx/repo.karlofduty.com/fedora/karlofduty-repo-latest.x86_64.rpm'
           }
         }
         stage('Debian')
