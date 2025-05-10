@@ -156,7 +156,7 @@ pipeline
           {
             unstash(name: "debian-deb")
             script { common.sign_deb_package(env.DEBIAN_DEB_PATH, env.DEBIAN_DSC_PATH) }
-            archiveArtifacts(artifacts: "${env.DEBIAN_DEB_PATH}, debian/karlofduty-repo_*.tar.xz", caseSensitive: true)
+            archiveArtifacts(artifacts: "${env.DEBIAN_DEB_PATH}, ${env.DEBIAN_SRC_PATH}", caseSensitive: true)
           }
         }
         stage('Ubuntu')
@@ -165,7 +165,7 @@ pipeline
           {
             unstash(name: "ubuntu-deb")
             script { common.sign_deb_package(env.UBUNTU_DEB_PATH, env.UBUNTU_DSC_PATH) }
-            archiveArtifacts(artifacts: "${env.UBUNTU_DEB_PATH}, ubuntu/karlofduty-repo_*.tar.xz", caseSensitive: true)
+            archiveArtifacts(artifacts: "${env.UBUNTU_DEB_PATH}, ${env.UBUNTU_SRC_PATH}", caseSensitive: true)
           }
         }
       }
