@@ -6,11 +6,11 @@ def prepare_gpg_key()
   }
 }
 
-def build_rpm_package(String distro, String package_name)
+def build_rpm_package(String distro, String package_name, String extra_build_args = "")
 {
   sh "mkdir -p ${distro}/SOURCES"
   sh "git archive --format=tar.gz HEAD > '${distro}/SOURCES/rpm-source.tar.gz'"
-  sh "rpmbuild -ba rpm-repos/${package_name}.spec --define \"_topdir ${WORKSPACE}/${distro}\" --define 'distro ${distro}'"
+  sh "rpmbuild -ba rpm-repos/${package_name}.spec --define \"_topdir ${WORKSPACE}/${distro}\" --define 'distro ${distro}' ${extra_build_args}"
   sh "cp ${distro}/RPMS/x86_64/${package_name}-*.x86_64.rpm ${distro}/"
   sh "cp ${distro}/SRPMS/${package_name}-*.src.rpm ${distro}/"
 }
