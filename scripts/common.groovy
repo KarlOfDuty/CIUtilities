@@ -102,7 +102,7 @@ def generate_debian_release_file(String ci_root, String distro)
 
 def update_aur_git_package(String package_name)
 {
-  sh "git clone https://aur.archlinux.org/${package_name}.git .tmp-${package_name}-aur"
+  sh "git clone -c init.defaultBranch=master ssh://aur@aur.archlinux.org/${package_name}.git .tmp-${package_name}-aur"
   dir(".tmp-${package_name}-aur")
   {
     sh "makepkg --nobuild && makepkg --printsrcinfo > .SRCINFO"
