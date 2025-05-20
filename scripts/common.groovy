@@ -130,7 +130,7 @@ def verify_release_does_not_exist(String repo, String release_version)
 def create_github_release(String repo, String release_version, List<String> artifacts, Boolean is_prerelease)
 {
   def artifacts_str = artifacts.collect { "\"${it}\"" }.join(' ')
-  def prerelease_arg = ""
+  def prerelease_arg = is_prerelease ? '--prerelease' : ''
   def release_title = ""
 
   if (release_version.toUpperCase().contains("RC"))
@@ -139,7 +139,6 @@ def create_github_release(String repo, String release_version, List<String> arti
   }
   else if (is_prerelease)
   {
-    prerelease_arg = "--prerelease"
     release_title = "Pre-release ${release_version}"
   }
   else
