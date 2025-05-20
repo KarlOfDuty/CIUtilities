@@ -112,4 +112,50 @@ def update_aur_git_package(String package_name)
   }
 }
 
+def verify_release_does_not_exist(String repo, String release_version)
+{
+  withCredentials([usernamePassword(credentialsId: 'karlofduty_github', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
+    def result = sh(
+      script: "gh release view ${release_version} --repo ${repo} > /dev/null 2>&1",
+      returnStatus: true
+    )
+
+    if (result == 0)
+    {
+      error "Release '${release_version}' already exists in '${repo}'"
+    }
+  }
+}
+
+def create_github_release(String repo, String release_version, List<String> artifacts, Boolean is_prerelease)
+{
+  def artifacts_str = artifacts.collect { "\"${it}\"" }.join(' ')
+  def prerelease_arg = ""
+  def release_title = ""
+
+  if (release_version.toUpperCase().contains("RC"))
+  {
+    release_title = "Release Candidate ${release_version}"
+  }
+  else if (is_prerelease)
+  {
+    prerelease_arg = "--prerelease"
+    release_title = "Pre-release ${release_version}"
+  }
+  else
+  {
+    release_title = "Release ${release_version}"
+  }
+
+  withCredentials([usernamePassword(credentialsId: 'karlofduty_github', usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
+    sh """
+      gh release create ${release_version} ${artifacts_str} \\
+        --title "${release_title}" \\
+        --notes "This description will be replaced with a proper changelog shortly." \\
+        --repo ${repo} \\
+        ${prerelease_arg}
+    """
+  }
+}
+
 return this
