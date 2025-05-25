@@ -19,11 +19,11 @@ do_hash() {
 cat << EOF
 Origin: karlofduty.com
 Label: KarlofDuty
-Suite: debian
-Codename: debian
-Version: 1.0.1
+Suite: $DIST
+Codename: $DIST
+Version: 1.0.2
 Architectures: amd64
-Components: main dev
+Components: main
 Description: Repository for KarlofDuty made packages
 Date: $(date -Ru)
 EOF

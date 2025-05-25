@@ -86,7 +86,7 @@ def generate_debian_release_file(String ci_root, String distro)
 
   dir("${repo_dir}/dists/${distro}")
   {
-    sh "${ci_root}/scripts/generate-deb-release-file.sh > Release"
+    sh "DIST=${distro} ${ci_root}/scripts/generate-deb-release-file.sh > Release"
     sh "cat Release | gpg -u 2FEAAE97C813C486 -abs > Release.gpg"
     sh "gpg --verify Release.gpg Release"
     sh "cat Release | gpg -u 2FEAAE97C813C486 --clearsign > InRelease"

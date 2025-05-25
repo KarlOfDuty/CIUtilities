@@ -1,2 +1,2 @@
-deb [arch=amd64 signed-by=/usr/share/keyrings/karlofduty-repo.gpg] https://repo.karlofduty.com/debian debian main dev
-deb-src [signed-by=/usr/share/keyrings/karlofduty-repo.gpg] https://repo.karlofduty.com/debian debian main dev
+deb [arch=amd64 signed-by=/usr/share/keyrings/karlofduty-repo.gpg] https://repo.karlofduty.com/debian debian main
+deb-src [signed-by=/usr/share/keyrings/karlofduty-repo.gpg] https://repo.karlofduty.com/debian debian main
