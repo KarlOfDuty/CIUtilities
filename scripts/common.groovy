@@ -100,14 +100,16 @@ def generate_debian_release_file(String ci_root, String distro)
   """
 }
 
-def update_aur_git_package(String package_name)
+def update_aur_git_package(String package_name, String pkgbuild_path, String install_file_path)
 {
   sh "git clone -c init.defaultBranch=master ssh://aur@aur.archlinux.org/${package_name}.git .tmp-${package_name}-aur"
   dir(".tmp-${package_name}-aur")
   {
+    sh "rm PKGBUILD"
+    sh "cp ../${pkgbuild_path} ./PKGBUILD"
+    sh "cp ../${install_file_path} ./"
     sh "makepkg --nobuild && makepkg --printsrcinfo > .SRCINFO"
-    sh "git add PKGBUILD .SRCINFO"
-    sh "git commit -m 'Jenkins automated version bump'"
+    sh "git commit -am 'Jenkins automated version bump'"
     sh "git push"
   }
 }
