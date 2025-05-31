@@ -186,6 +186,7 @@ pipeline
             {
               common.publish_rpm_package("rhel/el8", env.RHEL_RPM_PATH, env.RHEL_SRPM_PATH, "karlofduty-repo")
               common.publish_rpm_package("rhel/el9", env.RHEL_RPM_PATH, env.RHEL_SRPM_PATH, "karlofduty-repo")
+              common.publish_rpm_package("rhel/el10", env.RHEL_RPM_PATH, env.RHEL_SRPM_PATH, "karlofduty-repo")
             }
             sh 'rm /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm || echo "Link to latest package didn\'t exist"'
             sh "ln -s /usr/share/nginx/repo.karlofduty.com/rhel/el8/x86_64/Packages/karlofduty-repo/${env.RHEL_RPM_NAME} /usr/share/nginx/repo.karlofduty.com/rhel/karlofduty-repo-latest.x86_64.rpm"
