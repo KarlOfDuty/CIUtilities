@@ -42,7 +42,7 @@ def publish_rpm_package(String distro_dir, String rpm_path, String srpm_path, St
   sh "mkdir -p ${source_dir}"
 
   sh "cp ${rpm_path} ${package_dir}"
-  sh "cp ${rpm_path} ${source_dir}"
+  sh "cp ${srpm_path} ${source_dir}"
 
   sh "createrepo_c --update ${repo_dir}/x86_64"
   sh "createrepo_c --update ${repo_dir}/source"
